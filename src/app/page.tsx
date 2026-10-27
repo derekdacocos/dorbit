@@ -5,6 +5,7 @@ import TodoWidget from "@/components/TodoWidget";
 import WeatherWidget from "@/components/WeatherWidget";
 import FocusWidget from "@/components/FocusWidget";
 import MusicWidget from "@/components/MusicWidget";
+import NotesWidget from "@/components/NotesWidget";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
           <FocusWidget />
           <MusicWidget />
           <TodoWidget />
+          <NotesWidget />
         </div>
       </div>
     </main>
