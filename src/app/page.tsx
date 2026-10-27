@@ -7,6 +7,7 @@ import FocusWidget from "@/components/FocusWidget";
 import MusicWidget from "@/components/MusicWidget";
 import NotesWidget from "@/components/NotesWidget";
 import CountdownWidget from "@/components/CountdownWidget";
+import HabitWidget from "@/components/HabitWidget";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
           <TodoWidget />
           <NotesWidget />
           <CountdownWidget />
+          <HabitWidget />
         </div>
       </div>
     </main>
