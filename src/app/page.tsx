@@ -4,6 +4,7 @@ import SearchBar from "@/components/SearchBar";
 import TodoWidget from "@/components/TodoWidget";
 import WeatherWidget from "@/components/WeatherWidget";
 import FocusWidget from "@/components/FocusWidget";
+import MusicWidget from "@/components/MusicWidget";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <WeatherWidget />
           <FocusWidget />
+          <MusicWidget />
           <TodoWidget />
         </div>
       </div>
