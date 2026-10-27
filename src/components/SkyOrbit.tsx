@@ -1,13 +1,13 @@
 "use client";
-
+ 
 import { useSyncExternalStore } from "react";
 import { useSettingsStore } from "@/stores/useSettingsStore";
-
+ 
 function subscribe(onChange: () => void) {
   const intervalId = setInterval(onChange, 60 * 1000);
   return () => clearInterval(intervalId);
 }
-
+ 
 // Minutes since midnight, e.g. 2:30 PM = 870 (null while the server renders). Updates every minute.
 function useMinutes() {
   return useSyncExternalStore(
@@ -19,14 +19,14 @@ function useMinutes() {
     () => null
   );
 }
-
+ 
 // The orbit is a tilted oval around the clock. All numbers are % of the screen.
 const CENTER_X = 50;
 const CENTER_Y = 22;
 const RADIUS_X = 46;
 const RADIUS_Y = 12;
 const TILT = (-6 * Math.PI) / 180;
-
+ 
 // A point on the orbit for an angle in degrees (180 = left, 270 = top, 360 = right)
 function orbitPoint(degrees: number) {
   const angle = (degrees * Math.PI) / 180;
@@ -37,7 +37,7 @@ function orbitPoint(degrees: number) {
     y: CENTER_Y + x * Math.sin(TILT) + y * Math.cos(TILT),
   };
 }
-
+ 
 // SVG path along the orbit from one angle to another
 function arcPath(fromDegrees: number, toDegrees: number) {
   const steps = 60;
@@ -46,28 +46,28 @@ function arcPath(fromDegrees: number, toDegrees: number) {
     return `${i === 0 ? "M" : "L"}${x},${y}`;
   }).join(" ");
 }
-
+ 
 const FULL_ORBIT = arcPath(0, 360);
-
+ 
 // Moonlight (dark) or Sunrise (light): a moon or sun that travels around the orbit once a day.
 // 6 AM = left, noon = top, 6 PM = right, then it goes around the back during the night.
 export default function SkyOrbit() {
   const theme = useSettingsStore((state) => state.theme);
   const minutes = useMinutes();
   if (minutes === null) return null;
-
+ 
   const progress = ((minutes - 6 * 60 + 24 * 60) % (24 * 60)) / (24 * 60);
   const degrees = 180 + progress * 360;
   const { x, y } = orbitPoint(degrees);
-
+ 
   // Bigger and brighter on the top (front) of the orbit, smaller and dimmer around the back
   const front = (1 - Math.sin((degrees * Math.PI) / 180)) / 2; // 1 at the top, 0 at the bottom
   const scale = 0.6 + front * 0.4;
   const opacity = 0.45 + front * 0.55;
-
+ 
   const isDark = theme === "dark";
   const trailColor = isDark ? "#a5b4fc" : "#f5b971";
-
+ 
   return (
     <div className="pointer-events-none absolute inset-0" aria-hidden="true">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
@@ -99,7 +99,7 @@ export default function SkyOrbit() {
           />
         ))}
       </svg>
-
+ 
       <div
         className="absolute"
         style={{
@@ -107,10 +107,16 @@ export default function SkyOrbit() {
           top: `${y}%`,
           opacity,
           transform: `translate(-50%, -50%) scale(${scale})`,
+          // Glide smoothly to the next spot over the minute, instead of jumping
+          transition: "left 60s linear, top 60s linear, transform 60s linear, opacity 60s linear",
         }}
       >
-        <div className={isDark ? "moon" : "sun"} />
+        {/* float = a gentle up-and-down bob, so it's never completely still */}
+        <div className="float">
+          <div className={isDark ? "moon" : "sun"} />
+        </div>
       </div>
     </div>
   );
 }
+ 
