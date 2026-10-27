@@ -8,17 +8,52 @@ const BREAK_SECONDS = 5 * 60;
 
 type Mode = "focus" | "break";
 
-function playBeep() {
+type Note = {
+  frequency: number;
+  start: number;
+};
+
+function playNotes(notes: Note[]) {
   const audio = new AudioContext();
-  const oscillator = audio.createOscillator();
-  const volume = audio.createGain();
-  oscillator.frequency.value = 880;
-  oscillator.connect(volume);
-  volume.connect(audio.destination);
-  volume.gain.setValueAtTime(0.2, audio.currentTime);
-  volume.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 1.2);
-  oscillator.start();
-  oscillator.stop(audio.currentTime + 1.2);
+  for (const note of notes) {
+    const oscillator = audio.createOscillator();
+    const volume = audio.createGain();
+    oscillator.frequency.value = note.frequency;
+    oscillator.connect(volume);
+    volume.connect(audio.destination);
+
+    const time = audio.currentTime + note.start;
+    volume.gain.setValueAtTime(0.0001, time);
+    volume.gain.exponentialRampToValueAtTime(0.3, time + 0.02);
+    volume.gain.exponentialRampToValueAtTime(0.0001, time + 0.5);
+    oscillator.start(time);
+    oscillator.stop(time + 0.55);
+  }
+}
+
+function playFocusDone() {
+  const notes: Note[] = [];
+  for (let round = 0; round < 3; round++) {
+    const offset = round * 1.5;
+    notes.push(
+      { frequency: 523, start: offset },
+      { frequency: 659, start: offset + 0.18 },
+      { frequency: 784, start: offset + 0.36 }
+    );
+  }
+  playNotes(notes);
+}
+
+function playBreakDone() {
+  const notes: Note[] = [];
+  for (let round = 0; round < 3; round++) {
+    const offset = round * 1.5;
+    notes.push(
+      { frequency: 392, start: offset },
+      { frequency: 294, start: offset + 0.4 }
+    );
+  }
+  playNotes(notes);
 }
 
 function formatTime(totalSeconds: number) {
@@ -43,7 +78,11 @@ export default function FocusWidget() {
 
       if (current >= endAt) {
         clearInterval(intervalId);
-        playBeep();
+        if (mode === "focus") {
+          playFocusDone();
+        } else {
+          playBreakDone();
+        }
         const nextMode: Mode = mode === "focus" ? "break" : "focus";
         if (mode === "break") setRound((r) => r + 1);
         setMode(nextMode);
