@@ -26,10 +26,15 @@ export default function MusicWidget() {
   }
 
   const embedUrl = toEmbedUrl(link);
+  const isSpotify = embedUrl?.includes("spotify") ?? false;
 
   return (
-    <WidgetCard title="Music">
-      <div className="aspect-video overflow-hidden rounded-xl bg-slate-900">
+    <WidgetCard title="Music" className={isSpotify ? "sm:col-span-2" : ""}>
+      <div
+        className={`overflow-hidden rounded-xl bg-slate-900 ${
+            isSpotify ? "h-[152px]" : "aspect-video"
+        }`}
+    >
         {mounted && embedUrl && (
           <iframe
             src={embedUrl}
