@@ -3,12 +3,22 @@ import { persist } from "zustand/middleware";
 
 type Theme = "dark" | "light";
 
+export type City = {
+  name: string;
+  latitude: number;
+  longitude: number;
+};
+
 type SettingsState = {
+  name: string;
+  city: City;
   theme: Theme;
   wallpaper: string;
-  order: string[]; // widget ids in the order you arranged them (empty = default order)
+  order: string[]; 
   hidden: string[];
   isCustomizing: boolean;
+  setName: (name: string) => void;
+  setCity: (city: City) => void;
   toggleTheme: () => void;
   setWallpaper: (url: string) => void;
   setOrder: (order: string[]) => void;
@@ -19,11 +29,17 @@ type SettingsState = {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
+      name: "Derek",
+      city: { name: "Baguio", latitude: 16.4023, longitude: 120.596 },
       theme: "dark",
       wallpaper: "",
       order: [],
       hidden: [],
       isCustomizing: false,
+
+      setName: (name) => set({ name }),
+
+      setCity: (city) => set({ city }),
 
       toggleTheme: () =>
         set((state) => ({ theme: state.theme === "dark" ? "light" : "dark" })),
@@ -45,6 +61,8 @@ export const useSettingsStore = create<SettingsState>()(
       name: "dorbit-settings",
       // Save everything except isCustomizing (that should reset on refresh)
       partialize: (state) => ({
+        name: state.name,
+        city: state.city,
         theme: state.theme,
         wallpaper: state.wallpaper,
         order: state.order,

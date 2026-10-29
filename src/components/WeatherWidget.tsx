@@ -3,16 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 import WidgetCard from "@/components/WidgetCard";
 import { describeWeather, fetchWeather } from "@/lib/weather";
-
-// Change these to your own city (search "<your city> latitude longitude")
-const CITY = "Baguio";
-const LATITUDE = 16.4023;
-const LONGITUDE = 120.596;
+import { useSettingsStore } from "@/stores/useSettingsStore";
 
 export default function WeatherWidget() {
+  const city = useSettingsStore((state) => state.city);
+
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["weather", LATITUDE, LONGITUDE],
-    queryFn: () => fetchWeather(LATITUDE, LONGITUDE),
+    queryKey: ["weather", city.latitude, city.longitude],
+    queryFn: () => fetchWeather(city.latitude, city.longitude),
     staleTime: 10 * 60 * 1000,
     refetchInterval: 30 * 60 * 1000,
   });
@@ -54,7 +52,7 @@ export default function WeatherWidget() {
         <div>
           <p className="text-5xl font-semibold">{Math.round(data.current.temperature_2m)}°</p>
           <p className="mt-1 text-sm text-slate-400">
-            {now.label} · {CITY}
+            {now.label} · {city.name}
           </p>
         </div>
       </div>

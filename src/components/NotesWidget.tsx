@@ -38,6 +38,9 @@ function NotesEditor() {
 
 export default function NotesWidget() {
   const mounted = useMounted();
+  const cloudVersion = useNotesStore((state) => state.cloudVersion);
 
-  return <WidgetCard title="Notes">{mounted && <NotesEditor />}</WidgetCard>;
+  return (
+    <WidgetCard title="Notes">{mounted && <NotesEditor key={cloudVersion} />}</WidgetCard>
+  );
 }

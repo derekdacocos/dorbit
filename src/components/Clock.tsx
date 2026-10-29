@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-type ClockProps = {
-  name: string;
-};
+import { useSettingsStore } from "@/stores/useSettingsStore";
 
 function getGreeting(hour: number): string {
   if (hour < 12) return "Good morning";
@@ -12,7 +9,8 @@ function getGreeting(hour: number): string {
   return "Good evening";
 }
 
-export default function Clock({ name }: ClockProps) {
+export default function Clock() {
+  const name = useSettingsStore((state) => state.name);
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {

@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import AccountButton from "@/components/AccountButton";
+import SettingsPanel from "@/components/SettingsPanel";
 import { useMounted } from "@/hooks/useMounted";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
@@ -11,6 +14,7 @@ export default function Header() {
   const setWallpaper = useSettingsStore((state) => state.setWallpaper);
   const toggleCustomizing = useSettingsStore((state) => state.toggleCustomizing);
   const mounted = useMounted();
+  const [showSettings, setShowSettings] = useState(false);
 
   function changeWallpaper() {
     const url = window.prompt("Paste an image link for your wallpaper (leave empty to remove it):", wallpaper);
@@ -51,6 +55,7 @@ export default function Header() {
 
       {mounted && (
         <div className="flex gap-2">
+          <AccountButton className={buttonClass} />
           <button
             type="button"
             onClick={toggleCustomizing}
@@ -64,8 +69,13 @@ export default function Header() {
           <button type="button" onClick={changeWallpaper} className={buttonClass} title="Change wallpaper">
             🖼️
           </button>
+          <button type="button" onClick={() => setShowSettings(true)} className={buttonClass} title="Settings">
+            ⚙️
+          </button>
         </div>
       )}
+
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     </header>
   );
 }
