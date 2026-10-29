@@ -274,7 +274,14 @@ body {
   0%, 60% { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(0.95); }
 }
- 
+
+/* Settings: little pop when something changes */
+.pop-in { animation: pop-in 0.35s ease-out; }
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* People who turn off animations in their system settings get still stars */
 @media (prefers-reduced-motion: reduce) {
   .stars,

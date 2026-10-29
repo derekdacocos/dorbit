@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { searchCities } from "@/lib/geocoding";
 import { useSettingsStore } from "@/stores/useSettingsStore";
@@ -17,6 +17,8 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
 
   const [cityDraft, setCityDraft] = useState("");
   const [search, setSearch] = useState(""); // the search we actually run
+  const [savedCity, setSavedCity] = useState<string | null>(null); // for the "✓ Weather now shows..." message
+  const hideTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Only searches once you press Search (enabled: false = wait)
   const { data: results, isFetching, isError } = useQuery({
@@ -63,11 +65,16 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           id="settings-name"
           value={name}
           onChange={(event) => setName(event.target.value)}
+          placeholder="What should we call you?"
           className={inputClass + " w-full"}
         />
 
         <p className="mt-6 mb-1.5 text-sm text-slate-400">
-          Weather city: <span className="font-medium text-slate-200">{city.name}</span>
+          Weather city:{" "}
+          {/* key={city.name}: a new city remounts the span, so the pop animation plays again */}
+          <span key={city.name} className="pop-in inline-block font-medium text-slate-200">
+            {city.name}
+          </span>
         </p>
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
@@ -83,6 +90,15 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
             Search
           </button>
         </form>
+
+        {savedCity && (
+          <p
+            key={savedCity}
+            className="pop-in mt-3 rounded-lg bg-emerald-500/15 px-3 py-2 text-sm text-emerald-400 ring-1 ring-emerald-400/30"
+          >
+            ✓ Weather now shows {savedCity}
+          </p>
+        )}
 
         {isFetching && <p className="mt-3 text-sm text-slate-500">Searching...</p>}
         {isError && <p className="mt-3 text-sm text-red-400">Search failed. Try again.</p>}
@@ -104,6 +120,10 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
                     });
                     setSearch("");
                     setCityDraft("");
+                    // Show the confirmation for 4 seconds
+                    setSavedCity([result.name, result.admin1].filter(Boolean).join(", "));
+                    clearTimeout(hideTimeout.current);
+                    hideTimeout.current = setTimeout(() => setSavedCity(null), 4000);
                   }}
                   className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white/10"
                 >
@@ -117,6 +137,15 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
             ))}
           </ul>
         )}
+        
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-6 w-full rounded-lg bg-violet-400 py-2 text-sm font-medium text-slate-950 hover:bg-violet-300"
+        >
+          Done
+        </button>
+
       </div>
     </div>
   );
