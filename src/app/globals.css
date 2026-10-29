@@ -253,6 +253,27 @@ body {
 .light .glass {
   background: rgb(255 255 255 / 0.55);
 }
+
+/* Sign-in / sign-out cards */
+.signout-orbit { animation: spin 8s linear infinite; }
+.rocket-launch { animation: rocket-launch 1.4s ease-in forwards; }
+@keyframes rocket-launch {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-3px, 2px); }
+  20% { transform: translate(3px, -2px); }
+  30% { transform: translate(0, 0); }
+  100% { transform: translate(160px, -240px) scale(0.4); opacity: 0; }
+}
+.rocket-land { animation: rocket-land 1s ease-out forwards; }
+@keyframes rocket-land {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(-48px, -118px) rotate(-45deg); }
+}
+.card-launch { animation: card-launch 1.4s ease-in forwards; }
+@keyframes card-launch {
+  0%, 60% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
  
 /* People who turn off animations in their system settings get still stars */
 @media (prefers-reduced-motion: reduce) {
