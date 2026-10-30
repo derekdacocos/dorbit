@@ -5,6 +5,7 @@ import MusicWidget from "@/components/MusicWidget";
 import NotesWidget from "@/components/NotesWidget";
 import TodoWidget from "@/components/TodoWidget";
 import WeatherWidget from "@/components/WeatherWidget";
+import WorldClockWidget from "@/components/WorldClockWidget";
 
 export const WIDGETS = [
   { id: "weather", name: "Weather", icon: "⛅", description: "Today's weather for your city", Component: WeatherWidget },
@@ -14,4 +15,5 @@ export const WIDGETS = [
   { id: "notes", name: "Notes", icon: "📝", description: "Quick notes that save by themselves", Component: NotesWidget },
   { id: "countdowns", name: "Countdowns", icon: "📅", description: "Days left until your events", Component: CountdownWidget },
   { id: "habits", name: "Habits", icon: "🔥", description: "Track daily habits and streaks", Component: HabitWidget },
+  { id: "worldclocks", name: "World clocks", icon: "🌍", description: "The time in other cities", Component: WorldClockWidget },
 ];
