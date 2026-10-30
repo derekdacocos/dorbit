@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { searchCities } from "@/lib/geocoding";
+import { useRef, useState } from "react";
+import CitySearch from "@/components/CitySearch";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
 type SettingsPanelProps = {
@@ -15,25 +14,8 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
   const setName = useSettingsStore((state) => state.setName);
   const setCity = useSettingsStore((state) => state.setCity);
 
-  const [cityDraft, setCityDraft] = useState("");
-  const [search, setSearch] = useState(""); // the search we actually run
   const [savedCity, setSavedCity] = useState<string | null>(null); // for the "✓ Weather now shows..." message
   const hideTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  // Only searches once you press Search (enabled: false = wait)
-  const { data: results, isFetching, isError } = useQuery({
-    queryKey: ["cities", search],
-    queryFn: () => searchCities(search),
-    enabled: search !== "",
-  });
-
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSearch(cityDraft.trim());
-  }
-
-  const inputClass =
-    "min-w-0 flex-1 rounded-lg bg-slate-900 px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-violet-400";
 
   return (
     // The dark see-through layer behind the panel. Clicking it closes the panel.
@@ -66,7 +48,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="What should we call you?"
-          className={inputClass + " w-full"}
+          className="w-full rounded-lg bg-slate-900 px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-violet-400"
         />
 
         <p className="mt-6 mb-1.5 text-sm text-slate-400">
@@ -76,20 +58,15 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
             {city.name}
           </span>
         </p>
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            value={cityDraft}
-            onChange={(event) => setCityDraft(event.target.value)}
-            placeholder="Search a city..."
-            className={inputClass}
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-violet-400 px-3 text-sm font-medium text-slate-950 hover:bg-violet-300"
-          >
-            Search
-          </button>
-        </form>
+        <CitySearch
+          onPick={(result) => {
+            setCity({ name: result.name, latitude: result.latitude, longitude: result.longitude });
+            // Show the confirmation for 4 seconds
+            setSavedCity([result.name, result.admin1].filter(Boolean).join(", "));
+            clearTimeout(hideTimeout.current);
+            hideTimeout.current = setTimeout(() => setSavedCity(null), 4000);
+          }}
+        />
 
         {savedCity && (
           <p
@@ -100,44 +77,6 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           </p>
         )}
 
-        {isFetching && <p className="mt-3 text-sm text-slate-500">Searching...</p>}
-        {isError && <p className="mt-3 text-sm text-red-400">Search failed. Try again.</p>}
-        {results && results.length === 0 && !isFetching && (
-          <p className="mt-3 text-sm text-slate-500">No cities found.</p>
-        )}
-
-        {results && results.length > 0 && (
-          <ul className="mt-3 flex flex-col gap-1">
-            {results.map((result) => (
-              <li key={result.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCity({
-                      name: result.name,
-                      latitude: result.latitude,
-                      longitude: result.longitude,
-                    });
-                    setSearch("");
-                    setCityDraft("");
-                    // Show the confirmation for 4 seconds
-                    setSavedCity([result.name, result.admin1].filter(Boolean).join(", "));
-                    clearTimeout(hideTimeout.current);
-                    hideTimeout.current = setTimeout(() => setSavedCity(null), 4000);
-                  }}
-                  className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white/10"
-                >
-                  {result.name}
-                  <span className="text-slate-500">
-                    {" "}
-                    · {[result.admin1, result.country].filter(Boolean).join(", ")}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        
         <button
           type="button"
           onClick={onClose}
@@ -145,7 +84,6 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
         >
           Done
         </button>
-
       </div>
     </div>
   );

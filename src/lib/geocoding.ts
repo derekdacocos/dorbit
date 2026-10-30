@@ -4,7 +4,8 @@ export type CityResult = {
   latitude: number;
   longitude: number;
   country?: string;
-  admin1?: string; // province or state
+  admin1?: string;
+  timezone?: string;
 };
 
 // Finds cities matching what you typed, using Open-Meteo's free city search

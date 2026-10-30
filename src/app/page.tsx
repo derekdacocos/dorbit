@@ -5,6 +5,7 @@ import Dashboard from "@/components/Dashboard";
 import Header from "@/components/Header";
 import QuickLinks from "@/components/QuickLinks";
 import SearchBar from "@/components/SearchBar";
+import Welcome from "@/components/Welcome";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <QuickLinks />
         <Dashboard />
       </div>
+      <Welcome />
     </main>
   );
 }
