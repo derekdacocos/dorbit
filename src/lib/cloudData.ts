@@ -1,13 +1,15 @@
 import { useCountdownStore, type Countdown } from "@/stores/useCountdownStore";
+import { useGoalStore, type Goal } from "@/stores/useGoalStore";
 import { useHabitStore, type Habit } from "@/stores/useHabitStore";
 import { useLinksStore, type QuickLink } from "@/stores/useLinksStore";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useNotesStore } from "@/stores/useNotesStore";
+import { useReminderStore, type Reminder } from "@/stores/useReminderStore";
 import { useSettingsStore, type City } from "@/stores/useSettingsStore";
 import { useTodoStore, type Todo } from "@/stores/useTodoStore";
-import { useGoalStore, type Goal } from "@/stores/useGoalStore";
 import { useWorldClockStore, type WorldClock } from "@/stores/useWorldClockStore";
 
+// Everything Dorbit saves, in one object. This is what goes into your cloud document.
 export type DorbitData = {
   links: QuickLink[];
   todos: Todo[];
@@ -15,8 +17,9 @@ export type DorbitData = {
   countdowns: Countdown[];
   habits: Habit[];
   musicLink: string;
-  goal?: Goal | null;
+  goal?: Goal | null; // "?" = may be missing in documents saved before this step
   worldClocks?: WorldClock[];
+  reminders?: Reminder[];
   settings: {
     name: string;
     city: City;
@@ -27,6 +30,7 @@ export type DorbitData = {
   };
 };
 
+// Collects the data from every store on this device
 export function getLocalData(): DorbitData {
   const settings = useSettingsStore.getState();
   return {
@@ -38,6 +42,7 @@ export function getLocalData(): DorbitData {
     musicLink: useMusicStore.getState().link,
     goal: useGoalStore.getState().goal,
     worldClocks: useWorldClockStore.getState().clocks,
+    reminders: useReminderStore.getState().reminders,
     settings: {
       name: settings.name,
       city: settings.city,
@@ -49,6 +54,7 @@ export function getLocalData(): DorbitData {
   };
 }
 
+// Puts data from the cloud into every store (persist then saves it on this device too)
 export function applyCloudData(data: DorbitData) {
   useLinksStore.setState({ links: data.links });
   useTodoStore.setState({ todos: data.todos });
@@ -63,9 +69,11 @@ export function applyCloudData(data: DorbitData) {
   useMusicStore.setState({ link: data.musicLink });
   useGoalStore.setState({ goal: data.goal ?? null });
   useWorldClockStore.setState({ clocks: data.worldClocks ?? [] });
+  useReminderStore.setState({ reminders: data.reminders ?? [] });
   useSettingsStore.setState(data.settings);
 }
 
+// Calls onChange whenever any store changes. Returns a function that stops listening.
 export function subscribeToAllStores(onChange: () => void) {
   const stops = [
     useLinksStore.subscribe(onChange),
@@ -76,11 +84,14 @@ export function subscribeToAllStores(onChange: () => void) {
     useMusicStore.subscribe(onChange),
     useGoalStore.subscribe(onChange),
     useWorldClockStore.subscribe(onChange),
+    useReminderStore.subscribe(onChange),
     useSettingsStore.subscribe(onChange),
   ];
   return () => stops.forEach((stop) => stop());
 }
 
+// Turns data into text with the keys always in A-Z order. Firestore can give keys back in a
+// different order than we sent them, so this lets us tell "same data" from "new data".
 export function toSortedJson(data: unknown) {
   return JSON.stringify(data, (_key, value) =>
     value && typeof value === "object" && !Array.isArray(value)

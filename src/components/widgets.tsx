@@ -3,6 +3,7 @@ import FocusWidget from "@/components/FocusWidget";
 import HabitWidget from "@/components/HabitWidget";
 import MusicWidget from "@/components/MusicWidget";
 import NotesWidget from "@/components/NotesWidget";
+import ReminderWidget from "@/components/ReminderWidget";
 import TodoWidget from "@/components/TodoWidget";
 import WeatherWidget from "@/components/WeatherWidget";
 import WorldClockWidget from "@/components/WorldClockWidget";
@@ -15,5 +16,6 @@ export const WIDGETS = [
   { id: "notes", name: "Notes", icon: "📝", description: "Quick notes that save by themselves", Component: NotesWidget },
   { id: "countdowns", name: "Countdowns", icon: "📅", description: "Days left until your events", Component: CountdownWidget },
   { id: "habits", name: "Habits", icon: "🔥", description: "Track daily habits and streaks", Component: HabitWidget },
+  { id: "reminders", name: "Reminders", icon: "🔔", description: "A chime at the times you choose", Component: ReminderWidget },
   { id: "worldclocks", name: "World clocks", icon: "🌍", description: "The time in other cities", Component: WorldClockWidget },
 ];
