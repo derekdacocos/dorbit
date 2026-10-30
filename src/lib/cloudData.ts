@@ -5,6 +5,7 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { useNotesStore } from "@/stores/useNotesStore";
 import { useSettingsStore, type City } from "@/stores/useSettingsStore";
 import { useTodoStore, type Todo } from "@/stores/useTodoStore";
+import { useGoalStore, type Goal } from "@/stores/useGoalStore";
 
 export type DorbitData = {
   links: QuickLink[];
@@ -13,6 +14,7 @@ export type DorbitData = {
   countdowns: Countdown[];
   habits: Habit[];
   musicLink: string;
+  goal?: Goal | null;
   settings: {
     name: string;
     city: City;
@@ -32,6 +34,7 @@ export function getLocalData(): DorbitData {
     countdowns: useCountdownStore.getState().countdowns,
     habits: useHabitStore.getState().habits,
     musicLink: useMusicStore.getState().link,
+    goal: useGoalStore.getState().goal,
     settings: {
       name: settings.name,
       city: settings.city,
@@ -55,6 +58,7 @@ export function applyCloudData(data: DorbitData) {
   useCountdownStore.setState({ countdowns: data.countdowns });
   useHabitStore.setState({ habits: data.habits });
   useMusicStore.setState({ link: data.musicLink });
+  useGoalStore.setState({ goal: data.goal ?? null });
   useSettingsStore.setState(data.settings);
 }
 
@@ -66,6 +70,7 @@ export function subscribeToAllStores(onChange: () => void) {
     useCountdownStore.subscribe(onChange),
     useHabitStore.subscribe(onChange),
     useMusicStore.subscribe(onChange),
+    useGoalStore.subscribe(onChange),
     useSettingsStore.subscribe(onChange),
   ];
   return () => stops.forEach((stop) => stop());
