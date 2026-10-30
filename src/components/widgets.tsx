@@ -6,13 +6,12 @@ import NotesWidget from "@/components/NotesWidget";
 import TodoWidget from "@/components/TodoWidget";
 import WeatherWidget from "@/components/WeatherWidget";
 
-// Every widget on the dashboard, in the default order
 export const WIDGETS = [
-  { id: "weather", name: "Weather", Component: WeatherWidget },
-  { id: "focus", name: "Focus", Component: FocusWidget },
-  { id: "music", name: "Music", Component: MusicWidget },
-  { id: "todo", name: "To-do", Component: TodoWidget },
-  { id: "notes", name: "Notes", Component: NotesWidget },
-  { id: "countdowns", name: "Countdowns", Component: CountdownWidget },
-  { id: "habits", name: "Habits", Component: HabitWidget },
+  { id: "weather", name: "Weather", icon: "⛅", description: "Today's weather for your city", Component: WeatherWidget },
+  { id: "focus", name: "Focus", icon: "⏱️", description: "A focus timer with breaks", Component: FocusWidget },
+  { id: "music", name: "Music", icon: "🎵", description: "Play a YouTube or Spotify link", Component: MusicWidget },
+  { id: "todo", name: "To-do", icon: "✅", description: "A simple task list", Component: TodoWidget },
+  { id: "notes", name: "Notes", icon: "📝", description: "Quick notes that save by themselves", Component: NotesWidget },
+  { id: "countdowns", name: "Countdowns", icon: "📅", description: "Days left until your events", Component: CountdownWidget },
+  { id: "habits", name: "Habits", icon: "🔥", description: "Track daily habits and streaks", Component: HabitWidget },
 ];

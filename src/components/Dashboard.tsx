@@ -17,6 +17,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useState } from "react";
+import AddWidgetModal from "@/components/AddWidgetModal";
 import { useMounted } from "@/hooks/useMounted";
 import { WIDGETS } from "@/components/widgets";
 import { toEmbedUrl } from "@/lib/embeds";
@@ -26,10 +28,11 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 type SortableWidgetProps = {
   id: string;
   wide: boolean; // true = take up 2 columns
+  onHide?: () => void; // only given while customizing: shows a Hide button
   children: React.ReactNode;
 };
 
-function SortableWidget({ id, wide, children }: SortableWidgetProps) {
+function SortableWidget({ id, wide, onHide, children }: SortableWidgetProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id });
 
@@ -40,6 +43,15 @@ function SortableWidget({ id, wide, children }: SortableWidgetProps) {
       className={`relative ${isDragging ? "z-10 opacity-80" : ""} ${wide ? "sm:col-span-2" : ""}`}
     >
       {children}
+      {onHide && (
+        <button
+          type="button"
+          onClick={onHide}
+          className="absolute right-11 top-3.5 rounded-lg bg-red-500/15 px-2 py-0.5 text-xs text-red-300 ring-1 ring-red-400/30 hover:bg-red-500/30"
+        >
+          Hide
+        </button>
+      )}
       <button
         type="button"
         {...attributes}
@@ -62,6 +74,7 @@ export default function Dashboard() {
   const musicLink = useMusicStore((state) => state.link);
 
   const mounted = useMounted();
+  const [showAddWidget, setShowAddWidget] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -88,29 +101,6 @@ export default function Dashboard() {
 
   return (
     <div className="mt-12">
-      {isCustomizing && (
-        <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <span className="mr-2 text-sm text-slate-400">Show widgets:</span>
-          {WIDGETS.map((widget) => {
-            const isShown = !hidden.includes(widget.id);
-            return (
-              <button
-                key={widget.id}
-                type="button"
-                onClick={() => toggleHidden(widget.id)}
-                className={
-                  isShown
-                    ? "rounded-lg bg-violet-400 px-3 py-1.5 text-sm font-medium text-slate-950"
-                    : "rounded-lg bg-white/10 px-3 py-1.5 text-sm text-slate-400 line-through"
-                }
-              >
-                {widget.name}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={visibleIds} strategy={rectSortingStrategy}>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -119,18 +109,37 @@ export default function Dashboard() {
               if (!widget) return null;
               const { Component } = widget;
               return (
-                <SortableWidget key={id} id={id} wide={id === "music" && musicIsSpotify}>
+                <SortableWidget
+                  key={id}
+                  id={id}
+                  wide={id === "music" && musicIsSpotify}
+                  onHide={isCustomizing ? () => toggleHidden(id) : undefined}
+                >
                   <Component />
                 </SortableWidget>
               );
             })}
+
+            {/* The "Add widget" tile is always last. It isn't draggable. */}
+            <button
+              type="button"
+              onClick={() => setShowAddWidget(true)}
+              className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/15 text-slate-400 sm:min-h-40 hover:border-violet-400/60 hover:bg-white/5 hover:text-slate-200"
+            >
+              <span className="text-3xl">＋</span>
+              <span className="text-sm">Add widget</span>
+            </button>
           </div>
         </SortableContext>
       </DndContext>
 
       <p className="mt-8 text-center text-xs text-slate-500">
-        Drag the ⠿ handles to rearrange widgets
+        {isCustomizing
+          ? "Drag the ⠿ handles to rearrange, or Hide widgets you don't need"
+          : "Drag the ⠿ handles to rearrange widgets"}
       </p>
+
+      {showAddWidget && <AddWidgetModal onClose={() => setShowAddWidget(false)} />}
     </div>
   );
 }
